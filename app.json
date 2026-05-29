@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Workshop App",
+    "slug": "workshop-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "owner": "Daniel7901",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Allow Workshop App to add repair appointments to your calendar."
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.workshop.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to take photos of vehicle damage for AI analysis.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photos to upload vehicle damage images."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "workshop-app-project-id"
+      }
+    }
+  }
+}
