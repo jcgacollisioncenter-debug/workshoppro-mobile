@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 import { Camera, Maximize2, Trash2, CheckCircle2, Image as ImageIcon, Star, Package } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { decodeVin, analyzeDamage } from '../services/vehicleService';
+import { decodeVin, analyzeDamage, performVinOcr } from '../services/vehicleService';
 import CustomCamera from '../components/CustomCamera';
 import { Theme } from '../styles/theme';
 
@@ -48,6 +48,7 @@ const QuotePage = ({ onNext, onAdminTrigger }: { onNext: () => void, onAdminTrig
   const [showDescriptionReader, setShowDescriptionReader] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+  const [showVinCamera, setShowVinCamera] = useState(false);
   const [aiEstimate, setAiEstimate] = useState<any>(null);
   const [accessories, setAccessories] = useState<any[]>([]);
   const [interested, setInterested] = useState<string[]>([]);
@@ -111,6 +112,21 @@ const QuotePage = ({ onNext, onAdminTrigger }: { onNext: () => void, onAdminTrig
     if (images.length < 5) setImages([...images, { uri, mimeType: 'image/jpeg' }]);
     else Alert.alert('Limit Reached', 'Maximum 5 photos allowed.');
     setShowCamera(false);
+  };
+
+  const handleVinCapture = async (uri: string) => {
+    setShowVinCamera(false);
+    setLoading(true);
+    try {
+      const detectedVin = await performVinOcr(uri);
+      setVin(detectedVin);
+      Alert.alert('VIN Detected', `Scanned VIN: ${detectedVin}`);
+    } catch (error: any) {
+      const errorMsg = error?.message || 'Could not read VIN from photo. Please try again or type it manually.';
+      Alert.alert('OCR Failed', errorMsg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const pickImageFromGallery = async () => {
@@ -331,10 +347,6 @@ const QuotePage = ({ onNext, onAdminTrigger }: { onNext: () => void, onAdminTrig
         <CustomCamera onCapture={handleCapture} onClose={() => setShowCamera(false)} />
       </Modal>
 
-      <Modal visible={showCamera} animationType="slide">
-        <CustomCamera onCapture={handleCapture} onClose={() => setShowCamera(false)} />
-      </Modal>
-
       <Modal visible={showVinCamera} animationType="slide">
         <CustomCamera onCapture={handleVinCapture} onClose={() => setShowVinCamera(false)} />
       </Modal>
@@ -373,6 +385,7 @@ const styles = StyleSheet.create({
   sectionLabel: { fontSize: 14, fontWeight: '600', color: Theme.colors.navyDeep, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 },
   inputWrapper: { position: 'relative' },
   input: { backgroundColor: Theme.colors.surfaceGray, borderWidth: 1, borderColor: Theme.colors.borderGray, borderRadius: Theme.borderRadius.input, padding: 14, fontSize: 16, color: Theme.colors.navyDeep },
+  vinCameraButton: { position: 'absolute', right: 45, top: 12, padding: 4 },
   inlineLoader: { position: 'absolute', right: 15, top: 15 },
   gridSection: { backgroundColor: Theme.colors.surfaceGray, borderRadius: Theme.borderRadius.card, padding: 16, marginBottom: Theme.spacing.section, borderWidth: 1, borderColor: Theme.colors.borderGray },
   gridHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
@@ -434,13 +447,6 @@ const styles = StyleSheet.create({
   accPrice: { fontSize: 11, fontWeight: 'bold', color: Theme.colors.workshopGreen },
   accPriceSmall: { fontSize: 9, color: '#888', fontWeight: '400' },
   interestBtn: { marginTop: 10, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: Theme.colors.navyDeep, alignItems: 'center' },
-  interestBtnActive: { backgroundColor: Theme.colors.workshopGreen, borderColor: Theme.colors.workshopGreen },
-  interestBtnText: { fontSize: 10, fontWeight: 'bold', color: Theme.colors.navyDeep },
-  interestBtnTextActive: { color: '#fff' },
-});
-
-export default QuotePage;
-rColor: Theme.colors.navyDeep, alignItems: 'center' },
   interestBtnActive: { backgroundColor: Theme.colors.workshopGreen, borderColor: Theme.colors.workshopGreen },
   interestBtnText: { fontSize: 10, fontWeight: 'bold', color: Theme.colors.navyDeep },
   interestBtnTextActive: { color: '#fff' },
