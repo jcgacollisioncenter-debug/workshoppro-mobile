@@ -176,6 +176,29 @@ const QuotePage = ({ onNext, onAdminTrigger }: { onNext: () => void, onAdminTrig
 
   const isFormValid = vin.length === 17 && vehicleInfo && selectedZones.length > 0;
 
+  const handleClearAll = () => {
+    Alert.alert(
+      'Clear All Information',
+      'Are you sure you want to delete all entered data, including photos and VIN?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Clear All', 
+          style: 'destructive',
+          onPress: () => {
+            setVin('');
+            setVehicleInfo(null);
+            setSelectedZones([]);
+            setImages([]);
+            setDescription('');
+            setAiEstimate(null);
+            setInterested([]);
+          }
+        }
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView 
@@ -385,7 +408,7 @@ const styles = StyleSheet.create({
   sectionLabel: { fontSize: 14, fontWeight: '600', color: Theme.colors.navyDeep, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 },
   inputWrapper: { position: 'relative' },
   input: { backgroundColor: Theme.colors.surfaceGray, borderWidth: 1, borderColor: Theme.colors.borderGray, borderRadius: Theme.borderRadius.input, padding: 14, fontSize: 16, color: Theme.colors.navyDeep },
-  vinCameraButton: { position: 'absolute', right: 45, top: 12, padding: 4 },
+  vinCameraButton: { position: 'absolute', right: 12, top: 12, padding: 4 },
   inlineLoader: { position: 'absolute', right: 15, top: 15 },
   gridSection: { backgroundColor: Theme.colors.surfaceGray, borderRadius: Theme.borderRadius.card, padding: 16, marginBottom: Theme.spacing.section, borderWidth: 1, borderColor: Theme.colors.borderGray },
   gridHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
