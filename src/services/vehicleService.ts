@@ -65,3 +65,44 @@ export const analyzeDamage = async (imageUri: string, zones: string[], mimeType 
     throw error;
   }
 };
+
+// Admin Methods
+export const fetchAdminQuotes = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/admin/repair-plans`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching admin quotes:', error);
+    throw error;
+  }
+};
+
+export const fetchWorkshopSettings = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/admin/settings`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching workshop settings:', error);
+    throw error;
+  }
+};
+
+export const updateWorkshopSettings = async (updates: any) => {
+  try {
+    const response = await axios.patch(`${API_BASE_URL}/admin/settings`, updates);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating workshop settings:', error);
+    throw error;
+  }
+};
+
+export const updateRepairPlanStatus = async (id: string, updates: any) => {
+  try {
+    const response = await axios.patch(`${API_BASE_URL}/admin/repair-plans/${id}`, updates);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating repair plan:', error);
+    throw error;
+  }
+};

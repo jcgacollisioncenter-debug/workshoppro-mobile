@@ -43,35 +43,59 @@ import {
   LocateFixed
 } from 'lucide-react-native';
 import Slider from '@react-native-community/slider';
+import { 
+  fetchAdminQuotes, 
+  fetchWorkshopSettings, 
+  updateWorkshopSettings, 
+  updateRepairPlanStatus 
+} from '../services/vehicleService';
 import { Theme } from '../styles/theme';
-
-const MOCK_QUOTES = [
-  { id: '1', customer: 'Alexander Smith', vehicle: '2022 Ford F-150', status: 'pending', aiEstimate: { total: { min: 850, max: 1200 }, labour: 450, parts: 300, paint: 100, duration: { hours: 14 } }, time: '2h ago' },
-  { id: '2', customer: 'Sarah Jenkins', vehicle: '2024 Tesla Model 3', status: 'pending', aiEstimate: { total: { min: 4200, max: 5800 }, labour: 1800, parts: 3200, paint: 800, duration: { hours: 48 } }, time: '15m ago' }
-];
-
-const MOCK_SCHEDULE = [
-  { id: 's1', time: '08:00 AM', vehicle: 'BMW X5', type: 'Bodywork', tech: 'Marco R.' },
-  { id: 's2', time: '10:30 AM', vehicle: 'Audi A4', type: 'Paint Refinish', tech: 'Lucas S.' },
-  { id: 's3', time: '02:00 PM', vehicle: 'Ford Raptor', type: 'Structural', tech: 'Elena V.' }
-];
 
 const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [activeTab, setActiveTab] = useState('estimates');
-  const [quotes, setQuotes] = useState(MOCK_QUOTES);
+  const [quotes, setQuotes] = useState<any[]>([]);
   const [selectedQuote, setSelectedQuote] = useState<any>(null);
   const [isAutopilotEnabled, setIsAutopilotEnabled] = useState(true);
   const [autopilotThreshold, setAutopilotThreshold] = useState(2500);
   const [alertCount, setAlertCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Integration & Store States
-  const [apiKeys, setApiKeys] = useState([{ id: '1', key_name: 'Main Website', api_key: 'wp_live_...a8f2', created_at: '2026-05-20' }]);
-  const [accessories, setAccessories] = useState([{ id: '1', name: 'Premium Mats', price: 120, install_price: 0, stock: 15 }]);
+  const [apiKeys, setApiKeys] = useState<any[]>([]);
+  const [accessories, setAccessories] = useState<any[]>([]);
   const [newAcc, setNewAcc] = useState({ name: '', price: '', install: '', stock: '' });
   const [workshopCapacity, setWorkshopCapacity] = useState(12);
   const [workshopPhone, setWorkshopPhone] = useState('');
   const [workshopWebsite, setWorkshopWebsite] = useState('');
   const [workshopLocation, setWorkshopLocation] = useState<{lat: number, lng: number} | null>(null);
+
+  // Load Initial Data
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        const [plansData, settingsData] = await Promise.all([
+          fetchAdminQuotes(),
+          fetchWorkshopSettings()
+        ]);
+        
+        setQuotes(plansData);
+        setWorkshopCapacity(settingsData.bay_capacity);
+        setWorkshopPhone(settingsData.phone_number || '');
+        setWorkshopWebsite(settingsData.website_url || '');
+        if (settingsData.latitude && settingsData.longitude) {
+          setWorkshopLocation({ lat: settingsData.latitude, lng: settingsData.longitude });
+        }
+        setIsAutopilotEnabled(settingsData.autopilot_enabled);
+        setAutopilotThreshold(settingsData.autopilot_trust_limit);
+      } catch (error) {
+        console.error('Failed to load admin data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
 
   // Payment Config
   const [paymentConfig, setPaymentConfig] = useState({ provider: 'stripe', is_enabled: true, is_visible_to_users: true, api_key_public: '' });
