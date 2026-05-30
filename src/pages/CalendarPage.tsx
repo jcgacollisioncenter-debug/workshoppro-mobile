@@ -14,6 +14,9 @@ const CalendarPage = ({ onNext, onBack, aiEstimate, workshopSettings }: {
 }) => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [clientName, setClientName] = useState('');
+  const [clientPhone, setClientPhone] = useState('');
+  const [clientNotes, setClientNotes] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const today = new Date().toISOString().split('T')[0];
@@ -94,6 +97,36 @@ const CalendarPage = ({ onNext, onBack, aiEstimate, workshopSettings }: {
             <Text style={styles.capacityHint}>Availability is dynamic based on workshop bay load.</Text>
           </View>
         )}
+
+        {selectedSlot !== null && (
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>Client Information</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Your Full Name"
+              value={clientName}
+              onChangeText={setClientName}
+              placeholderTextColor="#888"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Phone Number"
+              value={clientPhone}
+              onChangeText={setClientPhone}
+              keyboardType="phone-pad"
+              placeholderTextColor="#888"
+            />
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Other relevant information for the repair..."
+              value={clientNotes}
+              onChangeText={setClientNotes}
+              multiline
+              numberOfLines={4}
+              placeholderTextColor="#888"
+            />
+          </View>
+        )}
       </ScrollView>
 
       <View style={styles.footer}>
@@ -141,6 +174,20 @@ const styles = StyleSheet.create({
   activeTimeText: { color: '#fff' },
   disabledTimeText: { color: '#888' },
   capacityHint: { fontSize: 11, color: '#888', marginTop: 15, fontStyle: 'italic' },
+  input: { 
+    backgroundColor: '#f8f9fa', 
+    borderWidth: 1, 
+    borderColor: '#eee', 
+    borderRadius: 12, 
+    padding: 15, 
+    fontSize: 14, 
+    color: '#1a1a2e', 
+    marginBottom: 12 
+  },
+  textArea: { 
+    height: 100, 
+    textAlignVertical: 'top' 
+  },
   footer: { padding: 20, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#eee' },
   confirmButton: { backgroundColor: Theme.colors.workshopGreen, padding: 18, borderRadius: 14, alignItems: 'center' },
   btnDisabled: { backgroundColor: '#ccc' },

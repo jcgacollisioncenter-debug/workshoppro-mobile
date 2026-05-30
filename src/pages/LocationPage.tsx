@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Linking, Image, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Linking, Image, ActivityIndicator, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker, Circle } from 'react-native-maps';
 import { CheckCircle, MapPin, Navigation, Calendar, ChevronDown, ChevronUp, Star, Phone, Globe } from 'lucide-react-native';
@@ -20,6 +20,25 @@ const LocationPage = ({ onBack, workshopSettings }: { onBack: () => void, worksh
       android: `geo:0,0?q=${workshopCoords.latitude},${workshopCoords.longitude}(WorkshopPro)`
     });
     Linking.openURL(url || '');
+  };
+
+  const handlePhoneCall = () => {
+    if (workshopSettings?.phone_number) {
+      Linking.openURL(`tel:${workshopSettings.phone_number}`);
+    } else {
+      Alert.alert("Contact Info", "Phone number not configured by workshop.");
+    }
+  };
+
+  const handleOpenWeb = () => {
+    if (workshopSettings?.website_url) {
+      const url = workshopSettings.website_url.startsWith('http') 
+        ? workshopSettings.website_url 
+        : `https://${workshopSettings.website_url}`;
+      Linking.openURL(url);
+    } else {
+      Alert.alert("Contact Info", "Workshop website not configured.");
+    }
   };
 
   return (
@@ -78,8 +97,8 @@ const LocationPage = ({ onBack, workshopSettings }: { onBack: () => void, worksh
               <Text style={styles.mainActionText}>Start Navigation</Text>
             </TouchableOpacity>
             <View style={styles.secondaryActions}>
-              <TouchableOpacity style={styles.iconAction}><Phone size={20} color={Theme.colors.navyDeep} /></TouchableOpacity>
-              <TouchableOpacity style={styles.iconAction}><Globe size={20} color={Theme.colors.navyDeep} /></TouchableOpacity>
+              <TouchableOpacity style={styles.iconAction} onPress={handlePhoneCall}><Phone size={20} color={Theme.colors.navyDeep} /></TouchableOpacity>
+              <TouchableOpacity style={styles.iconAction} onPress={handleOpenWeb}><Globe size={20} color={Theme.colors.navyDeep} /></TouchableOpacity>
             </View>
           </View>
         </View>

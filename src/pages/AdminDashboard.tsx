@@ -69,6 +69,8 @@ const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [accessories, setAccessories] = useState([{ id: '1', name: 'Premium Mats', price: 120, install_price: 0, stock: 15 }]);
   const [newAcc, setNewAcc] = useState({ name: '', price: '', install: '', stock: '' });
   const [workshopCapacity, setWorkshopCapacity] = useState(12);
+  const [workshopPhone, setWorkshopPhone] = useState('');
+  const [workshopWebsite, setWorkshopWebsite] = useState('');
   const [workshopLocation, setWorkshopLocation] = useState<{lat: number, lng: number} | null>(null);
 
   // Payment Config
@@ -279,10 +281,28 @@ const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
               <TouchableOpacity style={styles.saveBtn}><Save size={18} color="#fff" /><Text style={styles.saveBtnText}>Save Settings</Text></TouchableOpacity>
             </View>
 
-            {/* WORKSHOP GEOLOCATION */}
             <View style={[styles.card, {marginTop: 20}]}>
-              <View style={styles.paneHeader}><MapPin size={24} color={Theme.colors.pinRed} /><Text style={styles.paneTitle}>Workshop Location</Text></View>
-              <Text style={styles.yieldDesc}>Pin your physical location for customer navigation.</Text>
+              <View style={styles.paneHeader}><MapPin size={24} color={Theme.colors.pinRed} /><Text style={styles.paneTitle}>Workshop Contact & Location</Text></View>
+              
+              <Text style={styles.fieldLabel}>WORKSHOP PHONE</Text>
+              <TextInput 
+                style={styles.standardInput} 
+                placeholder="+1 416 555 0123" 
+                value={workshopPhone} 
+                onChangeText={setWorkshopPhone} 
+                keyboardType="phone-pad" 
+              />
+              
+              <Text style={[styles.fieldLabel, {marginTop: 15}]}>WORKSHOP WEBSITE</Text>
+              <TextInput 
+                style={styles.standardInput} 
+                placeholder="www.workshoppro.com" 
+                value={workshopWebsite} 
+                onChangeText={setWorkshopWebsite} 
+                autoCapitalize="none"
+              />
+
+              <Text style={[styles.yieldDesc, {marginTop: 20}]}>Pin your physical location for customer navigation.</Text>
               {workshopLocation ? (
                 <View style={styles.locationBadge}><CheckCircle2 size={14} color={Theme.colors.workshopGreen} /><Text style={styles.locationText}>Location Set: {workshopLocation.lat}, {workshopLocation.lng}</Text></View>
               ) : (
@@ -329,6 +349,42 @@ const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
               </View>
             ))}
             <TouchableOpacity style={[styles.approveBtn, !isFullyVerified && styles.disabledApprove]} disabled={!isFullyVerified} onPress={handleFinalApproval}><FileText size={20} color="#fff" /><Text style={styles.approveBtnText}>Finalize Estimate</Text></TouchableOpacity>
+            
+            {selectedQuote?.status === 'approved' && (
+              <View style={styles.repairPlanAdmin}>
+                <Text style={styles.sectionTitle}>Repair Journey Management</Text>
+                {[
+                  { id: 'inspection', label: '1. Physical Inspection' },
+                  { id: 'disassembly', label: '2. Disassembly' },
+                  { id: 'bodywork', label: '3. Body Work (Metal)' },
+                  { id: 'prep', label: '4. Surface Prep' },
+                  { id: 'paint', label: '5. Paint & Finish' },
+                  { id: 'reassembly', label: '6. Reassembly' },
+                  { id: 'detailing', label: '7. Detailing & Wash' },
+                  { id: 'ready', label: '8. Ready for Pickup' }
+                ].map((step) => (
+                  <View key={step.id} style={styles.stepAdminRow}>
+                    <Text style={styles.stepAdminLabel}>{step.label}</Text>
+                    <View style={styles.stepStatusToggle}>
+                      {[0, 1, 2].map((s) => (
+                        <TouchableOpacity 
+                          key={s} 
+                          style={[
+                            styles.statusDot, 
+                            s === 0 && styles.statusPending, 
+                            s === 1 && styles.statusWorking, 
+                            s === 2 && styles.statusDone,
+                            // In real app, bind to state
+                          ]}
+                        >
+                          <Text style={styles.statusDotText}>{s === 0 ? 'P' : s === 1 ? 'W' : 'D'}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
           </ScrollView>
         </SafeAreaView>
       </Modal>
@@ -439,7 +495,16 @@ const styles = StyleSheet.create({
   verifiedBtn: { backgroundColor: Theme.colors.workshopGreen },
   approveBtn: { backgroundColor: Theme.colors.workshopGreen, padding: 16, borderRadius: 12, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10 },
   disabledApprove: { backgroundColor: '#ccc' },
-  approveBtnText: { color: '#fff', fontSize: 15, fontWeight: 'bold' }
+  approveBtnText: { color: '#fff', fontSize: 15, fontWeight: 'bold' },
+  repairPlanAdmin: { marginTop: 30, paddingTop: 30, borderTopWidth: 1, borderTopColor: '#eee' },
+  stepAdminRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
+  stepAdminLabel: { fontSize: 14, fontWeight: 'bold', color: Theme.colors.navyDeep },
+  stepStatusToggle: { flexDirection: 'row', gap: 10 },
+  statusDot: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#f0f2f5', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#ddd' },
+  statusPending: { },
+  statusWorking: { backgroundColor: 'rgba(83, 74, 183, 0.1)', borderColor: Theme.colors.aiPurple },
+  statusDone: { backgroundColor: Theme.colors.workshopGreen, borderColor: Theme.colors.workshopGreen },
+  statusDotText: { fontSize: 10, fontWeight: 'bold', color: '#888' }
 });
 
 export default AdminDashboard;
