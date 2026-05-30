@@ -247,13 +247,22 @@ const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
           <View style={styles.pane}>
             <View style={styles.card}>
               <View style={styles.paneHeader}><CalendarDays size={22} color={Theme.colors.navyDeep} /><Text style={styles.paneTitle}>Today's Work Plan</Text></View>
-              {MOCK_SCHEDULE.map(item => (
-                <View key={item.id} style={styles.scheduleItem}>
-                  <View style={styles.timeTag}><Text style={styles.timeTagText}>{item.time}</Text></View>
-                  <View style={styles.itemMain}><Text style={styles.itemVehicle}>{item.vehicle}</Text><Text style={styles.itemType}>{item.type} · {item.tech}</Text></View>
-                  <CheckCircle2 size={18} color="#ddd" />
+              {quotes.filter(q => q.status === 'approved' || q.status === 'confirmed').length > 0 ? (
+                quotes.filter(q => q.status === 'approved' || q.status === 'confirmed').map(item => (
+                  <View key={item.id} style={styles.scheduleItem}>
+                    <View style={styles.timeTag}><Text style={styles.timeTagText}>{item.scheduled_at ? new Date(item.scheduled_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'TBD'}</Text></View>
+                    <View style={styles.itemMain}>
+                      <Text style={styles.itemVehicle}>{item.vehicle?.make} {item.vehicle?.model}</Text>
+                      <Text style={styles.itemType}>{item.current_step || 'In Queue'} · {item.client_name || 'Generic'}</Text>
+                    </View>
+                    <CheckCircle2 size={18} color={item.progress_percentage === 100 ? Theme.colors.workshopGreen : "#ddd"} />
+                  </View>
+                ))
+              ) : (
+                <View style={styles.emptyStateContainer}>
+                  <Text style={styles.emptyStateText}>No active repairs scheduled for today.</Text>
                 </View>
-              ))}
+              )}
             </View>
             <View style={styles.yieldMaxCard}>
               <View style={styles.yieldHeader}><Rocket size={24} color={Theme.colors.aiPurple} /><Text style={styles.yieldTitle}>YieldMax™ Priority</Text></View>
