@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   StyleSheet, 
   View, 
@@ -9,20 +9,57 @@ import {
   Platform, 
   ImageBackground,
   StatusBar,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
+import { Eye, EyeOff } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = ({ onLogin }: { onLogin: (data: { name: string; address: string }) => void }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
 
-  const handleAdminAuth = () => {
+  // Check for existing session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const savedSession = await AsyncStorage.getItem('user_session');
+        if (savedSession) {
+          onLogin(JSON.parse(savedSession));
+        }
+      } catch (e) {
+        console.error('Failed to load session');
+      } finally {
+        setIsChecking(false);
+      }
+    };
+    checkSession();
+  }, []);
+
+  const handleAdminAuth = async () => {
+    // Current simple auth logic - Can be expanded with Supabase Auth later
     if (email === 'admin@workshoppro.ca' && password === 'admin123') {
-      onLogin({ name: 'System Admin', address: 'Workshop HQ' });
+      const userData = { name: 'System Admin', address: 'Workshop HQ' };
+      try {
+        await AsyncStorage.setItem('user_session', JSON.stringify(userData));
+        onLogin(userData);
+      } catch (e) {
+        Alert.alert('Error', 'Could not save session.');
+      }
     } else {
       Alert.alert('Auth Error', 'Invalid admin credentials.');
     }
   };
+
+  if (isChecking) {
+    return (
+      <View style={[styles.mainContainer, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#3b82f6" />
+      </View>
+    );
+  }
 
   const backgroundImage = { uri: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&q=80&w=2000' };
 
@@ -60,14 +97,22 @@ const Login = ({ onLogin }: { onLogin: (data: { name: string; address: string })
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.label}>Password</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="••••••••"
-                    placeholderTextColor="rgba(255, 255, 255, 0.4)"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                  />
+                  <View style={styles.passwordWrapper}>
+                    <TextInput
+                      style={[styles.input, { flex: 1 }]}
+                      placeholder="••••••••"
+                      placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                      value={password}
+                      onChangeText={setPassword}
+                      secureTextEntry={!showPassword}
+                    />
+                    <TouchableOpacity 
+                      style={styles.eyeIcon} 
+                      onPress={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={20} color="#fff" /> : <Eye size={20} color="#fff" />}
+                    </TouchableOpacity>
+                  </View>
                 </View>
 
                 <TouchableOpacity 
@@ -168,14 +213,21 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 4,
   },
-  input: {
+  passwordWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: 'rgba(30, 41, 59, 0.6)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 16,
+  },
+  input: {
     padding: 16,
     color: '#f8fafc',
     fontSize: 16,
+  },
+  eyeIcon: {
+    paddingHorizontal: 16,
   },
   button: {
     backgroundColor: '#3b82f6',
