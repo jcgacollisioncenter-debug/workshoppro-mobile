@@ -57,6 +57,18 @@ const QuotePage = ({ onNext, onAdminTrigger }: { onNext: () => void, onAdminTrig
   const [tapCount, setTapCount] = useState(0);
   const lastTapRef = React.useRef<number>(0);
 
+  const fetchAccessories = async () => {
+    try {
+      const response = await fetch('https://workshoppro-backend.onrender.com/api/admin/accessories');
+      if (response.ok) {
+        const data = await response.json();
+        setAccessories(data);
+      }
+    } catch (error) {
+      console.error('Error fetching accessories:', error);
+    }
+  };
+
   const handleHeaderTap = () => {
     const now = Date.now();
     const TIME_LIMIT = 500;
