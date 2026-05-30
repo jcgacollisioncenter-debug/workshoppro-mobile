@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Cambia esto por tu IP local si pruebas en un dispositivo físico
-const API_BASE_URL = 'http://192.168.0.220:3001/api';
+const API_BASE_URL = 'https://workshoppro-backend.onrender.com/api';
 
 export const getParts = async (year: string, make: string, model: string, query: string = '') => {
   try {

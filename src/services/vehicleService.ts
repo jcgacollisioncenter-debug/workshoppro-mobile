@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Replace with your local IP if testing on a physical device
-const API_BASE_URL = 'http://192.168.0.220:3001/api';
+const API_BASE_URL = 'https://workshoppro-backend.onrender.com/api';
 
 export const decodeVin = async (vin: string) => {
   try {
